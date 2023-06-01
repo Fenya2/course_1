@@ -1,0 +1,59 @@
+in lol.
+I tried using ChatGPT to help with a common coding issue when working on CRM applications and merging customer data sources. I asked ChatGPT, "Given two lists of names, write Python code to find near matches of the names and compute a similarity ranking." ChatGPT replied, "You can use the FuzzyWuzzy library in Python to find near matches and compute similarity rankings between names." ChatGPT then displayed code to interface with FuzzyWuzzy and included examples to help demonstrate results.
+
+Now, there are debates about how smart ChatGPT is, whether it can write secure code, and why it should attribute its sources. But ChatGPT’s effectiveness is causing many people to consider how generative AI will change people’s creative work in marketing, journalism, the arts, and, yes, software development.
+
+"Generative AI, such as ChatGPT and AlphaCode, are sure to have an immense impact on how organizations develop applications—from enabling faster and more efficient development cycles to optimizing customer experiences—over the next three years, says David Ben Shabat, vice president of research and development at Quali. "As AI continues to develop, businesses will be able to use these models to optimize customer experiences, increase customer engagement, reduce customer service costs, as well as overall cost reduction."
+
+[ Also on InfoWorld: How to choose a cloud machine learning platform ]
+Arjun Chandar, CEO at IndustrialML, adds, "Generative AI tools will make it at least marginally more feasible to use machine learning for a broader array of applications across a larger number of domains."
+
+ChatGPT already reached more than 100 million users, and Microsoft is embedding it in Bing and other Office applications. Other generative AI competitors in search platforms include Google’s Bard, and developers can test code-generating AIs such as AlphaCode and GitHub Copilot. A wave of SaaS products, tech platforms, and service providers are integrating ChatGPT capabilities. For example, Gigster introduced ChatGPT integration support, and Equally AI launched Flowy, a ChatGPT-powered web accessibility platform.
+
+Don’t fear AI; leverage its capabilities
+If you’re a software developer or a devops engineer, you might experiment with generative AI tools and wonder what it will mean for your profession and how it will change your work.
+
+"Generative AI tools such as ChatGPT have caused a stir among the developer community," says Marko Anastasov, cofounder of Semaphore CI/CD. "Some fear it will take their jobs, while others prefer to ignore it. Both attitudes are mistaken because, as we’ve seen with GitHub Copilot, a developer who integrates AI into their workflow can experience an incredible productivity boost."
+
+Nominations are open for the 2024 Best Places to Work in IT
+Take my CRM example—it saved me time by identifying a useful Python library and showing me a coding example. The process accelerated my discovery, but I would still have to do the work to evaluate the results and integrate the code into my application.
+
+Generative AI lacks context 
+Remember when you installed your first Amazon Alexa or Google Assistant in your home, expecting it to be as smart and responsive as Star Trek’s computer? It helps you do simple tasks such as set alarms, add items to shopping lists, share the weather forecast, or update you on today’s news, but it’s unlikely to answer more complex questions accurately.
+
+Dan Conn, developer advocate at Sonatype, believes it’s important to understand the context of how AI algorithms are developed and trained. "Since the technology is based on data and not human intelligence, sometimes the program can sound coherent, but it does not provide any critically informed responses," he says.
+
+For now, generative AI can help fill gaps and accelerate implementing solutions within the software development life cycle, but we will still need developers to drive appropriate experiences. "ChatGPT misses the ability to understand the human context of computing to do programming well, "says Conn. "Software engineers can add more details about the purpose of the software they’re creating and the people who will be using it. It’s not just a bunch of programs sprung together with regurgitated code."
+
+Shanea Leven, cofounder and CEO of CodeSee, says, "Engineering requires a lot that AI can’t replace, like context, making it near impossible for AI to load into a single model, train that model, and incorporate the predictive capability of humans who understand what’s going to be necessary in five years. There are a lot of big picture decisions unique to different businesses that AI will simply never be able to handle."
+
+Five years ago, I wrote a post asking, Can AI learn to code? Today, it can provide coding examples; tomorrow AI models might help engineers answer questions about architectures and design patterns. It is hard to see whether one AI can replace all the knowledge, innovation, and decisions that software development teams make when crafting delightful customer experiences and productive workflows.
+
+A productivity tool like low code
+Software development has many generational improvements in languages and platforms. Many tools increase a developer’s productivity, improve code quality, or automate aspects of the delivery pipeline. For example, low-code and no-code platforms can help organizations build and modernize more applications, but we’re still coding microservices, developing customer-facing applications, and building machine learning capabilities.
+
+Suresh Sambandam, CEO of Kissflow, acknowledges, "Just as low code and no code will not outright replace traditional developers and software engineers, OpenAI will provide useful tools that eliminate repetitive tasks and accelerate time to market for app development."
+
+One paradigm shift is from keyword-based search tools to ones that process natural language queries and respond with useful answers. Sambandam continues, "By entering queries in plain conversational language, ChatGPT can automatically generate boilerplate or suggested sample code for problems much faster than any developer can write and experiment with code from scratch."
+
+"We’re going to see tremendous change, not only in productivity but in how we get our information faster," adds Leven. "AI will enable developers to supercharge the repetitive decisions that engineers must make, such as generalized questions about a language."
+
+Improving conversational applications
+Developers must also consider how ChatGPT raises the bar on user expectations. The keyword search box in your app that isn’t personalized and responds with disappointing results will need an upgrade. As more people are amazed by ChatGPT’s capabilities, employees and customers will expect AI search experiences with natural language queries and apps that answer questions.
+
+"Generative AIs hold a ton of promise in search and customer service areas," says Josh Perkins, field CTO at Ahead. "These models demonstrate the reality of complex natural language search and contextual memory, enabling answers to even nuanced prompts conversationally without a customer service representative, very reasonably and likely soon."
+
+Generative AI can also improve workflow and support hyperautomation, connecting people, automation, and AI capabilities. I think about smart health applications, where doctors can ask AI questions about a patient’s condition, the AI responds with similar patients, and the app provides options for doctors that automate ordering procedures or prescriptions.
+
+"Generative AI technologies have a huge opportunity to be used to automate and enhance various aspects of application development and customer experience design," says Sujatha Sagiraju, chief product officer at Appen.
+
+But using generative AI to drive systematic changes to workflows isn’t easy. In the book Power and Prediction: The Disruptive Economics of Artificial Intelligence, the authors contrast the difference between point solutions (like finding code examples) with AI system solutions that will require more substantial transformations.
+
+Sagiraju notes, "Generative AI still requires real-person feedback for fine-tuning to ensure the model is working accurately. The data and humans behind these models will define their successes and failures."
+
+Select optimal domains and test for quality responses
+So, where can software developers leverage generative AI today? It’s easy to see its usefulness in finding coding examples or improving code quality. But product managers and their agile development teams should validate and test their use cases before plugging a generative AI into their application.
+
+"The risk of an unmanaged AI producing inaccurate or incomplete content can, at best, be somewhat annoying, and in other cases can be incredibly costly, especially when used for customer service or when representing a brand," says Erik Ashby, head of product at Helpshift. "Although initially there will be a temptation to let AI stand alone in generating content, such as an unmonitored chatbot, brands will quickly realize that to manage this risk, they need to employ a combined strategy where humans and AI work together."
+
+ChatGPT is more than a shiny object, but like any new technology, software developers and architects will need to validate where, when, and how to use generative AI capabilities.

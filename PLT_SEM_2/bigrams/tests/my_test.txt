@@ -1,0 +1,2 @@
+some text i want to decay on bigrams. i think it is posible.
+another text education want.

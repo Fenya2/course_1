@@ -1,0 +1,308 @@
+#! /bin/bash
+
+function check_for_limit()
+{
+  record=$1;
+  count="$(echo ${record} | awk '{print $3}')";
+  output_dir="$(echo ${record} | awk '{print $5}')";
+  
+  if [ ! "${count}" -eq 0 ]; then
+    num_of_tars="$(ls -lt ${output_dir} | grep -P ".tar$" | wc -l)";
+    delta=$((${num_of_tars}-${count}));
+    if [ "${delta}" -ge 0 ]; then
+      files_to_delete="$(ls -trl ${output_dir} | grep -P ".tar$" | head -n $((${delta} + 1)) | awk '{print $9}' | tr '\n' ' ')";
+      files_to_delete_sums="$(ls -trl ${output_dir} | grep -P ".tar.sum$" | head -n $((${delta} + 1)) | awk '{print $9}' | tr '\n' ' ')";
+      cd ${output_dir};
+      rm ${files_to_delete};
+      rm ${files_to_delete_sums};
+      cd -;
+    fi
+  fi
+}
+
+
+function make_backup() #name
+{
+  name=$1;
+  if [ -z "${name}" ]; then
+    echo "Type error. Missing arg name.";
+    exit 1;
+  fi
+  
+  record="$(awk -v backup_name=${name} 'BEGIN {res=0} {if ($1 == backup_name) res=$0} END {print res}' ~/.config/anytask_backup/backup.conf)";
+  if test "${record}" -eq 0 2> /dev/null; then
+    echo "Type error. This backup not found. Create it using 'backup create' command.";
+    exit 1;
+  fi
+  
+  input_dir="$(echo ${record} | awk '{print $4}')";
+  output_dir="$(echo ${record} | awk '{print $5}')";
+  pattern="$(echo ${record} | awk '{print $6}' | tr -d "\\" 2>> errors.log)";
+  
+  #echo ${input_dir};
+  #echo ${output_dir};
+  #echo ${pattern};
+  
+  if [ ! -d ${output_dir} ]; then
+    echo "Error. Output directory is not exist.";
+    exit 1;
+  fi
+  
+  check_for_limit "${record}";
+  
+  tar_name=$(date +"%Y%m%d_%H%M%S").tar;
+  if ! tar -cf ${output_dir}${tar_name} ${input_dir}${pattern} 2>> ./errors.log; then
+    echo "Error in creating tar archive.";
+    exit 2;
+  fi
+  sha512sum ${output_dir}${tar_name} > ${output_dir}${tar_name}.sum;
+  exit 0;
+}
+
+function create() #from to pattern backup_name
+{
+  input_dir=$1;
+  output_dir=$2;
+  pattern="$(echo $3 | tr -d "\\" 2>> errors.log)";
+  name=$4;
+  
+  #echo ${input_dir};
+  #echo ${output_dir};
+  #echo ${pattern};
+  #echo ${name};
+  
+  if [ -z "${name}" ]; then
+    echo "Type error. Missing arg name.";
+    exit 1;
+  fi
+  
+  flag_e="$(awk -v backup_name=${name} 'BEGIN{fe=0} {if ($1 == backup_name) fe=1} END {print fe}' ~/.config/anytask_backup/backup.conf)";
+  #echo ${flag_e};
+  if [ "${flag_e}" -eq "1" ]; then
+    echo "Error. Backup $name already exist.";
+    exit 1;
+  fi
+
+  if [ ! -d ${output_dir} ]; then
+    echo "Error. Output directory is not exist.";
+    exit 1;
+  fi
+  
+  mkdir ${output_dir}${name};
+  tar_name=$(date +"%Y%m%d_%H%M%S").tar;
+  if ! tar -cf ${output_dir}${name}/${tar_name} ${input_dir}${pattern} 2>> ./errors.log; then
+    echo "Error in creating tar archive.";
+    rm ${output_dir}${name}/${tar_name};
+    exit 2;
+  fi
+  sha512sum ${output_dir}${name}/${tar_name} > ${output_dir}${name}/${tar_name}.sum;
+  
+  echo -e "${name}\t0\t0\t${input_dir}\t${output_dir}${name}/\t$3" >> ~/.config/anytask_backup/backup.conf;
+  exit 0;
+}
+
+function plan() #mode name 
+{
+  mode=$1;
+  name=$2;
+  script_name="$(realpath $3)";
+  if [ -z "${mode}" ]; then
+    echo "Type error. Missing arg 'mode'.";
+    exit 1;
+  elif [ -z "${name}" ]; then  
+    echo "Type error. Missing arg 'name'.";
+    exit 1;
+  fi
+  
+  record="$(awk -v backup_name=${name} 'BEGIN {res=0} {if ($1 == backup_name) res=$0} END {print res}' ~/.config/anytask_backup/backup.conf)";
+  if test "${record}" -eq 0 2> /dev/null; then
+    echo "Type error. This backup not found. Create it using 'backup create' command.";
+    exit 1;
+  fi
+  
+  case "${mode}" in
+  
+  "-d" | "--daily" )
+  crontab -l > crontab.tmp;
+  cat crontab.tmp | grep -v -P "${name}$" > crontab2.tmp;
+  echo "0 17 * * * ${script_name} make ${name}" >> crontab2.tmp;
+  
+  awk -v name="${name}" '{if ($1==name) $2="d"} {print $0}' ~/.config/anytask_backup/backup.conf > newConf.tmp;
+  
+  crontab crontab2.tmp;
+  mv newConf.tmp ~/.config/anytask_backup/backup.conf;
+  
+  rm crontab2.tmp;
+  rm crontab.tmp;
+  
+  exit 0;
+  ;;
+
+  "-w" | "--weekly" )
+  
+  crontab -l > crontab.tmp;
+  cat crontab.tmp | grep -v -P "${name}$" > crontab2.tmp;
+  echo "0 17 * * 0 ${script_name} make ${name}" >> crontab2.tmp;
+  
+  awk -v name="${name}" '{if ($1==name) $2="w"} {print $0}' ~/.config/anytask_backup/backup.conf > newConf.tmp;
+  
+  crontab crontab2.tmp;
+  mv newConf.tmp ~/.config/anytask_backup/backup.conf;
+  
+  rm crontab2.tmp;
+  rm crontab.tmp;
+  
+  exit 0;
+  ;;
+  
+  "-m" | "--monthly" )
+  
+  crontab -l > crontab.tmp;
+  cat crontab.tmp | grep -v -P "${name}$" > crontab2.tmp;
+  echo "0 17 1 * * ${script_name} make ${name}" >> crontab2.tmp;
+  
+  awk -v name="${name}" '{if ($1==name) $2="m"} {print $0}' ~/.config/anytask_backup/backup.conf > newConf.tmp;
+  
+  crontab crontab2.tmp;
+  mv newConf.tmp ~/.config/anytask_backup/backup.conf;
+  
+  rm crontab2.tmp;
+  rm crontab.tmp;
+  exit 0;
+  ;;
+  
+  "-0" | "--off" )
+  
+  crontab -l > crontab.tmp;
+  cat crontab.tmp | grep -v -P "${name}$" > crontab2.tmp;
+  
+  awk -v name="${name}" '{if ($1==name) $2="0"} {print $0}' ~/.config/anytask_backup/backup.conf > newConf.tmp;
+  
+  crontab crontab2.tmp;
+  mv newConf.tmp ~/.config/anytask_backup/backup.conf;
+  
+  rm crontab2.tmp;
+  rm crontab.tmp;
+  exit 0;
+  ;;
+  esac
+  
+  echo "Type error. plan mode is incorrect."
+  exit 1;  
+}
+
+function limit()
+{
+  mode=$1;
+  name=$2;
+  if [ -z "${mode}" ]; then
+    echo "Type error. Missing arg 'mode'.";
+    exit 1;
+  elif [ -z "${name}" ]; then  
+    echo "Type error. Missing arg 'name'.";
+    exit 1;
+  fi
+  
+  record="$(awk -v backup_name=${name} 'BEGIN {res=0} {if ($1 == backup_name) res=$0} END {print res}' ~/.config/anytask_backup/backup.conf)";
+  if test "${record}" -eq 0 2> /dev/null; then
+    echo "Type error. This backup not found. Create it using 'backup create' command.";
+    exit 1;
+  fi
+  
+  test "${mode}" -eq "${mode}" 2> /dev/null;
+  if [ ! "$?" -eq 0 ]; then
+    echo "Type error. Arg mode must be integer";
+    exit 1;
+  fi
+  awk -v name="${name}" -v mode="${mode}" '{if ($1==name) $3=mode} {print $0}' ~/.config/anytask_backup/backup.conf > newConf.tmp;
+  mv newConf.tmp ~/.config/anytask_backup/backup.conf;
+  exit 0;
+}
+
+function delete()
+{
+  name=$1;
+  if [ -z "${name}" ]; then  
+    echo "Type error. Missing arg 'name'.";
+    exit 1;
+  fi
+  
+  record="$(awk -v backup_name=${name} 'BEGIN {res=0} {if ($1 == backup_name) res=$0} END {print res}' ~/.config/anytask_backup/backup.conf)";
+  if test "${record}" -eq 0 2> /dev/null; then
+    echo "Type error. This backup not found. Create it using 'backup create' command.";
+    exit 1;
+  fi
+  
+  
+  echo "Список крон";
+  crontab -l > crontab.tmp;
+  echo "2";
+  grep -v -P "${name}$" crontab.tmp > crontab2.tmp;
+  echo "новый конфиг";
+  grep -v -P "^${name}" ~/.config/anytask_backup/backup.conf > newConf.tmp;
+  
+  crontab crontab2.tmp;
+  
+  mv newConf.tmp ~/.config/anytask_backup/backup.conf;
+  rm crontab2.tmp;
+  rm crontab.tmp;
+  exit 0;
+}
+
+function getHelp()
+{
+  echo "backup create <FROM> <TO> <PATTERN> <PROJ_NAME>";
+  echo "FROM - директория, из которой берутся файлы для резервного копирования";
+  echo "TO - директория, в которую помещать созданный архив";
+  echo "PATTERN - шаблон, по которому делать резервную копию, берется в кавычки. Звездочка экранируется.";
+  echo "PROJ_NAME - имя вновь создаваемого проекта резервного копирования";
+  echo "";
+  echo "backup make <PROJ_NAME>";
+  echo "Создает копию заданного проекта резерного копирования.";
+  echo "";
+  echo "backup list";
+  echo "Показать спиcок созданных проектов резервного копирования";
+  echo "";
+  echo "backup limit <COUNT> <PROJ_NAME>";
+  echo "Ограничить максимальное количество архивов. Если 0 - ограничений нет";
+  echo "";
+  echo "backup plan <mode> <PROJ_NAME>";
+  echo "запланировать резервное копирование.";
+  echo "mode -d - ежедневно в 17:00";
+  echo "mode -w - еженедельно";
+  echo "mode -m - ежемесячно";
+  echo "mode -0 - отменить периодическое копирование";
+  echo "";
+  echo "backup delete <mode> <PROJ_NAME>";
+  echo "Удаляет проект резервного копирования";
+}
+
+if [ ! -d ~/.config/anytask_backup ]; then
+  mkdir ~/.config/anytask_backup;
+fi
+touch ~/.config/anytask_backup/backup.conf;
+
+if [[ "$1" == "create" ]]; then
+  #what where pattern name
+  create $2 $3 $4 $5;
+elif [[ "$1" == "plan" ]]; then
+  plan $2 $3 $0;
+elif [[ "$1" == "delete" ]]; then
+  #backup_name
+  delete $2
+elif [[ "$1" == "make" ]]; then
+  make_backup $2;
+elif [[ "$1" == "limit" ]]; then
+  # count name
+  limit $2 $3;
+elif [[ "$1" == "list" ]]; then
+  cat ~/.config/anytask_backup/backup.conf;
+  exit 0;
+elif [[ "$1" == "--help" ]]; then
+  getHelp;  
+else
+  echo "Type error. Command not found try backup --help for info.";
+  exit 1;
+fi
+exit 0;
+
